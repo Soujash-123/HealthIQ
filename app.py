@@ -10,7 +10,7 @@ def generate_response(user_message):
     # Use Cohere's text generation API to generate a response
     response =  co.generate(
       prompt= user_message,
-      max_tokens=100
+      max_tokens=200
     )
     return response[0]
 
