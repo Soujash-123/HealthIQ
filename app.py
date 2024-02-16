@@ -1,18 +1,22 @@
 from flask import Flask, render_template, request, jsonify
 import cohere
 
-
 app = Flask(__name__)
 
 co = cohere.Client('qVXNWHUtUYvra3zAjvtsBscbI9jIZmV4xsS16ReR')
 
 def generate_response(user_message):
     # Use Cohere's text generation API to generate a response
-    response =  co.generate(
-      prompt= user_message,
-      max_tokens=200
-    )
-    return response[0]
+    response = ""
+    while True:
+        partial_response = co.generate(
+            prompt=user_message,
+            max_tokens=200
+        )[0]
+        response += partial_response
+        if "<|endoftext|>" in partial_response:
+            break
+    return response
 
 @app.route('/')
 def index():
