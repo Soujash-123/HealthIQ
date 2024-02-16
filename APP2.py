@@ -1,22 +1,18 @@
 from flask import Flask, render_template, request, jsonify
-import openai
-from imageGEN import imageGeneration 
+import cohere
+
+
 app = Flask(__name__)
 
-# Set your OpenAI API key
-openai.api_key = "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"
+co = cohere.Client('qVXNWHUtUYvra3zAjvtsBscbI9jIZmV4xsS16ReR')
 
-def chat_with_fitness_bot(user_info, prompt):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-1106",
-        messages=[
-            {"role": "user", "content": user_info},
-            {"role": "assistant", "content": prompt}
-        ],
-        temperature=0.7,
-        max_tokens=150
+def generate_response(user_message):
+    # Use Cohere's text generation API to generate a response
+    response =  co.generate(
+      prompt= user_message,
+      max_tokens=100
     )
-    return response.choices[0].message['content'].strip()
+    return response[0]
 
 @app.route('/')
 def index():
@@ -25,21 +21,7 @@ def index():
 @app.route('/ask', methods=['POST'])
 def ask():
     user_message = request.json.get('message', '')
-    
-    if 'show' in user_message.lower():
-        try:
-            image_url = imageGeneration(user_input)
-            if image_url:
-                bot_response = ("DALL-E Image URL:" + image_url)
-                print(image_url)
-            else:
-                bot_response = ("Failed to generate image from DALL-E.")
-        except:
-            bot_response = ("The Command goes against our policies. Please be more specific. For example: Show me how to do a jumping jack exercise.")
-    # Use the chat_with_fitness_bot function to get the response
-
-    bot_response = chat_with_fitness_bot(user_message, "fitness")
-    
+    bot_response = generate_response("You are a gym fitness trainer, Help the user in staying fit by Answering the following:" + user_message)
     return jsonify({'answer': bot_response})
 
 if __name__ == '__main__':
