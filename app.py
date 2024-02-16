@@ -11,7 +11,7 @@ def generate_response(user_message):
     while True:
         partial_response = co.generate(
             prompt=user_message,
-            max_tokens="ALL"
+            max_tokens=500
         )[0]
         response += partial_response
         if "<|endoftext|>" in partial_response:
